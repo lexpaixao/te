@@ -60,7 +60,7 @@ async function criarTabelas() {
         await client.query(`
       INSERT INTO usuarios (cpf, nome_usuario, cep, email, telefone, senha)
       SELECT * FROM (VALUES 
-        ('52998224725', 'Alana Almeida', 40255169, 'alana@gmal.com', '71934256790', '1234')
+        ('52998224725', 'Alana Almeida', 46855169, 'alana@gmal.com', '71934256790', '1234')
       ) AS dados(cpf, nome_usuario, cep, email, telefone, senha)
       WHERE NOT EXISTS (SELECT 1 FROM usuarios LIMIT 1);
     `);
