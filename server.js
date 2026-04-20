@@ -32,6 +32,7 @@ async function criarTabelas() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS produto (
         id SERIAL PRIMARY KEY,
+        nome_estabelecimento VARCHAR(69) NOT NULL,
         estabelecimento_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
         nome_produto VARCHAR(100) NOT NULL,
         preco  NUMERIC NOT NULL,
@@ -40,6 +41,34 @@ async function criarTabelas() {
         categoria VARCHAR(100) NOT NULL,
         criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+    
+await cliente.query (`
+    INSERT INTO produto (nome_estabelecimento, nome_produto, preco, cep, descricao, categoria)
+VALUES 
+('Mercearia Moura', 'Acucar Mascavo', 6.80, '46880-000',  'Validos até 29-04-2026', 'produto de mercearia'),
+
+('Superbom', 'Leite liquido domares', 3.90, '46880-070',  'Leite liquido integral 1L valido até 07-05-26', 'produto de mercearia'),
+
+('Doce Encanto', 'Morangos', 8.50, '46881-900', '200g morangos orgânicos produzido pela agricultura familiar', 'Frutas'),
+
+('Doce Encanto', 'Tomate',  2.80, '46881-900', 'Tomates estragados, proprios para compostagem organica, venda por kilo. ', 'Frutas'),
+
+('Doce Encanto', 'Doce de Banana', 18.00, '46883-600',  '500g de doce artesanal de banana organica', 'Petiscos'),
+
+('Cooperativa Tropical', 'Polpa de frutas diversas', 15.00, '46884-000', '50 polpas diversificadas de frutas organicas ', 'Congelados'),
+
+('Axxair atacdista', 'feijao carioca', 5.00, '46885-000', 'PROMOCAO, feijao carioca 1kg no precinho Validos até 19-05-2026 ou enquanto durar o estoque','produto de mercearia'),
+
+('Axxair atacdista', 'arroz parbolizado', 24.00, '46887-069', 'PROMOCAO, arroz parbolizado 5kg no precinho enquanto durar o estoque produto Validos até 03-04-2026 ','produto de mercearia')
+
+ON CONFLICT NOTHING
+  `);
+    
+    await cliente.query (`
+    INSERT INTO usuarios (cpf, nome_usuario, cep, email, telefone, senha)
+    VALUES (52998224725, 'Alana Almeida', 40255169, alana@gmal.com, 71934256790, 1234)
+    ON CONFLICT NOTHING;
     `);
 
      // Adiciona colunas caso não existam (seguro)
@@ -81,6 +110,36 @@ app.post("/api/login", async (req, res) => {
     res.json({ token, usuario: { id: usuario.id, nome: usuario.nome_usuario } });
   } catch (err) {
     console.error("Erro no login:", err);
+    res.status(500).json({ erro: "Erro interno do servidor" });
+  }
+});
+
+app.post("/api/cadastroproduto", async (req, res) => {
+  try {
+    const {nome_produto, preco, cep,  descricao, categoria} = req.body;
+
+    if (!nome_produto|| !preco || !cep || !descricao || !categoria) {
+      return res.status(400).json({ erro: "Preencha todos os campos." });
+    }
+
+    // const check = await client.query(
+    //   "SELECT 1 FROM produto WHERE cep = $1",
+    //   [cep]
+    // );
+
+    // if (check.rows.length) {
+    //   return res.status(400).json({ erro: "Usuário já cadastrado." });
+    // }
+
+    await client.query(
+      "INSERT INTO produto (nome_produto, preco, cep,  descricao, categoria) VALUES ($3, $4, $5, $6, $7)",
+      [nome_produto, preco, cep,  descricao, categoria]
+    );
+
+    res.status(201).json({ mensagem: "Produto cadastrado com sucesso!" });
+
+  } catch (err) {
+    console.error("Erro no cadastro:", err);
     res.status(500).json({ erro: "Erro interno do servidor" });
   }
 });
