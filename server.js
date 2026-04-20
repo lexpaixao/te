@@ -32,7 +32,7 @@ async function criarTabelas() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS produto (
         id SERIAL PRIMARY KEY,
-        nome_estabelecimento VARCHAR(69) NOT NULL,
+        nome_estabelecimento VARCHAR(69),
         estabelecimento_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
         nome_produto VARCHAR(100) NOT NULL,
         preco  NUMERIC NOT NULL,
@@ -43,32 +43,32 @@ async function criarTabelas() {
       );
     `);
     
-await cliente.query (`
+await client.query (`
     INSERT INTO produto (nome_estabelecimento, nome_produto, preco, cep, descricao, categoria)
 VALUES 
-('Mercearia Moura', 'Acucar Mascavo', 6.80, '46880-000',  'Validos até 29-04-2026', 'produto de mercearia'),
+('Mercearia Moura', 'Acucar Mascavo', 6.80, 46880000,  'Validos até 29-04-2026', 'produto de mercearia'),
 
-('Superbom', 'Leite liquido domares', 3.90, '46880-070',  'Leite liquido integral 1L valido até 07-05-26', 'produto de mercearia'),
+('Superbom', 'Leite liquido domares', 3.90, 46880070,  'Leite liquido integral 1L valido até 07-05-26', 'produto de mercearia'),
 
-('Doce Encanto', 'Morangos', 8.50, '46881-900', '200g morangos orgânicos produzido pela agricultura familiar', 'Frutas'),
+('Doce Encanto', 'Morangos', 8.50, 46881900, '200g morangos orgânicos produzido pela agricultura familiar', 'Frutas'),
 
-('Doce Encanto', 'Tomate',  2.80, '46881-900', 'Tomates estragados, proprios para compostagem organica, venda por kilo. ', 'Frutas'),
+('Doce Encanto', 'Tomate',  2.80, 46881900, 'Tomates estragados, proprios para compostagem organica, venda por kilo. ', 'Frutas'),
 
-('Doce Encanto', 'Doce de Banana', 18.00, '46883-600',  '500g de doce artesanal de banana organica', 'Petiscos'),
+('Doce Encanto', 'Doce de Banana', 18.00, 46883600,  '500g de doce artesanal de banana organica', 'Petiscos'),
 
-('Cooperativa Tropical', 'Polpa de frutas diversas', 15.00, '46884-000', '50 polpas diversificadas de frutas organicas ', 'Congelados'),
+('Cooperativa Tropical', 'Polpa de frutas diversas', 15.00, 46884-000, '50 polpas diversificadas de frutas organicas ', 'Congelados'),
 
-('Axxair atacdista', 'feijao carioca', 5.00, '46885-000', 'PROMOCAO, feijao carioca 1kg no precinho Validos até 19-05-2026 ou enquanto durar o estoque','produto de mercearia'),
+('Axxair atacdista', 'feijao carioca', 5.00, 46885000, 'PROMOCAO, feijao carioca 1kg no precinho Validos até 19-05-2026 ou enquanto durar o estoque','produto de mercearia'),
 
-('Axxair atacdista', 'arroz parbolizado', 24.00, '46887-069', 'PROMOCAO, arroz parbolizado 5kg no precinho enquanto durar o estoque produto Validos até 03-04-2026 ','produto de mercearia')
+('Axxair atacdista', 'arroz parbolizado', 24.00, 46887069, 'PROMOCAO, arroz parbolizado 5kg no precinho enquanto durar o estoque produto Validos até 03-04-2026 ','produto de mercearia')
 
-ON CONFLICT NOTHING
+ON CONFLICT DO NOTHING
   `);
     
     await cliente.query (`
     INSERT INTO usuarios (cpf, nome_usuario, cep, email, telefone, senha)
-    VALUES (52998224725, 'Alana Almeida', 40255169, alana@gmal.com, 71934256790, 1234)
-    ON CONFLICT NOTHING;
+    VALUES ('52998224725', 'Alana Almeida', 40255169, 'alana@gmal.com', '71934256790', '1234')
+    ON CONFLICT DO NOTHING;
     `);
 
      // Adiciona colunas caso não existam (seguro)
@@ -132,7 +132,7 @@ app.post("/api/cadastroproduto", async (req, res) => {
     // }
 
     await client.query(
-      "INSERT INTO produto (nome_produto, preco, cep,  descricao, categoria) VALUES ($3, $4, $5, $6, $7)",
+      "INSERT INTO produto (nome_produto, preco, cep,  descricao, categoria) VALUES ($1, $2, $3, $4, $5)",
       [nome_produto, preco, cep,  descricao, categoria]
     );
 
@@ -178,12 +178,12 @@ app.post("/api/cadastro", async (req, res) => {
 app.get("/api/comercioproximo", async (req, res) => {
   try {
     const query = `
-      SELECT u.cep, p.cep
-      * FROM produto p
+      SELECT P.*
+       FROM produto p
       WHERE p.cep BETWEEN 
-    (SELECT u.cep - 100 FROM usuario WHERE id = 1)
+    (SELECT cep - 100 FROM usuarios WHERE id = 1)
 AND 
-    (SELECT u.cep + 100 FROM usuario WHERE id = 1)
+    (SELECT cep + 100 FROM usuarios WHERE id = 1)
       ORDER BY criado_em DESC;
     `;
     const result = await client.query(query);
