@@ -43,32 +43,26 @@ async function criarTabelas() {
       );
     `);
     
-await client.query (`
-    INSERT INTO produto (nome_estabelecimento, nome_produto, preco, cep, descricao, categoria)
-VALUES 
-('Mercearia Moura', 'Acucar Mascavo', 6.80, 46880000,  'Validos até 29-04-2026', 'produto de mercearia'),
-
-('Superbom', 'Leite liquido domares', 3.90, 46880070,  'Leite liquido integral 1L valido até 07-05-26', 'produto de mercearia'),
-
-('Doce Encanto', 'Morangos', 8.50, 46881900, '200g morangos orgânicos produzido pela agricultura familiar', 'Frutas'),
-
-('Doce Encanto', 'Tomate',  2.80, 46881900, 'Tomates estragados, proprios para compostagem organica, venda por kilo. ', 'Frutas'),
-
-('Doce Encanto', 'Doce de Banana', 18.00, 46883600,  '500g de doce artesanal de banana organica', 'Petiscos'),
-
-('Cooperativa Tropical', 'Polpa de frutas diversas', 15.00, 46884-000, '50 polpas diversificadas de frutas organicas ', 'Congelados'),
-
-('Axxair atacdista', 'feijao carioca', 5.00, 46885000, 'PROMOCAO, feijao carioca 1kg no precinho Validos até 19-05-2026 ou enquanto durar o estoque','produto de mercearia'),
-
-('Axxair atacdista', 'arroz parbolizado', 24.00, 46887069, 'PROMOCAO, arroz parbolizado 5kg no precinho enquanto durar o estoque produto Validos até 03-04-2026 ','produto de mercearia')
-
-ON CONFLICT DO NOTHING
-  `);
-    
-    await client.query (`
-    INSERT INTO usuarios (cpf, nome_usuario, cep, email, telefone, senha)
-    VALUES ('52998224725', 'Alana Almeida', 40255169, 'alana@gmal.com', '71934256790', '1234')
-    ON CONFLICT DO NOTHING;
+ await client.query(`
+      INSERT INTO produto (nome_estabelecimento, nome_produto, preco, cep, descricao, categoria)
+      SELECT * FROM (VALUES 
+        ('Mercearia Moura', 'Acucar Mascavo', 6.80, 46880000, 'Validos até 29-04-2026', 'produto de mercearia'),
+        ('Superbom', 'Leite liquido domares', 3.90, 46880070, 'Leite liquido integral 1L valido até 07-05-26', 'produto de mercearia'),
+        ('Doce Encanto', 'Morangos', 8.50, 46881900, '200g morangos orgânicos produzido pela agricultura familiar', 'Frutas'),
+        ('Doce Encanto', 'Tomate', 2.80, 46881900, 'Tomates estragados, proprios para compostagem organica, venda por kilo.', 'Frutas'),
+        ('Doce Encanto', 'Doce de Banana', 18.00, 46883600, '500g de doce artesanal de banana organica', 'Petiscos'),
+        ('Cooperativa Tropical', 'Polpa de frutas diversas', 15.00, 46884000, '50 polpas diversificadas de frutas organicas', 'Congelados'),
+        ('Axxair atacdista', 'feijao carioca', 5.00, 46885000, 'PROMOCAO, feijao carioca 1kg no precinho Validos até 19-05-2026 ou enquanto durar o estoque', 'produto de mercearia'),
+        ('Axxair atacdista', 'arroz parbolizado', 24.00, 46887069, 'PROMOCAO, arroz parbolizado 5kg no precinho enquanto durar o estoque produto Validos até 03-04-2026', 'produto de mercearia')
+      ) AS dados(nome_estabelecimento, nome_produto, preco, cep, descricao, categoria)
+      WHERE NOT EXISTS (SELECT 1 FROM produto LIMIT 1);
+    `);
+        await client.query(`
+      INSERT INTO usuarios (cpf, nome_usuario, cep, email, telefone, senha)
+      SELECT * FROM (VALUES 
+        ('52998224725', 'Alana Almeida', 40255169, 'alana@gmal.com', '71934256790', '1234')
+      ) AS dados(cpf, nome_usuario, cep, email, telefone, senha)
+      WHERE NOT EXISTS (SELECT 1 FROM usuarios LIMIT 1);
     `);
 
      // Adiciona colunas caso não existam (seguro)
