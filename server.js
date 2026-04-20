@@ -101,7 +101,7 @@ app.post("/api/login", async (req, res) => {
     // Aqui você pode gerar token JWT real
     const token = "tokenbg-de-teste";
 
-    res.json({ token, usuario: { id: usuario.id, nome: usuario.nome_usuario } });
+    res.json({ token, usuario: { id: usuario.id, nome: usuario.nome_usuario, cep: usuario.cep } });
   } catch (err) {
     console.error("Erro no login:", err);
     res.status(500).json({ erro: "Erro interno do servidor" });
