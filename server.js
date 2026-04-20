@@ -5,7 +5,7 @@ const { Client } = require("pg");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json());clei
 
 // Configuração do PostgreSQL
 const client = new Client({
@@ -65,7 +65,7 @@ VALUES
 ON CONFLICT DO NOTHING
   `);
     
-    await cliente.query (`
+    await client.query (`
     INSERT INTO usuarios (cpf, nome_usuario, cep, email, telefone, senha)
     VALUES ('52998224725', 'Alana Almeida', 40255169, 'alana@gmal.com', '71934256790', '1234')
     ON CONFLICT DO NOTHING;
