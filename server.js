@@ -5,7 +5,7 @@ const { Client } = require("pg");
 
 const app = express();
 app.use(cors());
-app.use(express.json());clei
+app.use(express.json());
 
 // Configuração do PostgreSQL
 const client = new Client({
